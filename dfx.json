@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "chama-app-backend": {
+      "main": "src/chama-app-backend/main.mo",
+      "type": "motoko"
+    },
+    "chama-app-frontend": {
+      "dependencies": [
+        "chama-app-backend"
+      ],
+      "source": [
+        "src/chama-app-frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "chama-app-frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
