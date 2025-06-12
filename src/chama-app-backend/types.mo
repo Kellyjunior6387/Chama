@@ -19,4 +19,17 @@ module {
         #ok : Ok;
         #err : Err;
     };
+
+    // New types for contribution system
+    public type ContributionStatus = {
+        #Paid;
+        #Unpaid;
+        #PendingVerification;
+    };
+
+    public type PayoutSchedule = {
+        memberId : Principal;
+        scheduledTime : Int;
+        amount : Nat;
+    };
 }
