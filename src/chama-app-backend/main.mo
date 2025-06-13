@@ -35,6 +35,34 @@ actor {
         contributionLogic.getContributionStatus(chamaId, memberId)
     };
 
+
+    public query func getCurrentRoundInfo(chamaId : Nat) : async ?ContributionLogic.RoundInfo {
+        contributionLogic.getCurrentRoundInfo(chamaId)
+    };
+
+    public query func getRoundProgress(chamaId : Nat) : async Types.Result<Text, Text> {
+        contributionLogic.getRoundProgress(chamaId)
+    };
+
+    // Get next payout information
+    public query func getNextPayoutInfo(chamaId : Nat) : async Types.Result<ContributionLogic.ReceiverInfo, Text> {
+        contributionLogic.getNextPayoutInfo(chamaId)
+    };
+
+    // Get current receiver details
+    public query func getCurrentReceiverDetails(chamaId : Nat) : async Types.Result<ContributionLogic.ReceiverInfo, Text> {
+        contributionLogic.getCurrentReceiverDetails(chamaId)
+    };
+    // Get round status
+    public query func getRoundStatus(chamaId : Nat) : async Types.Result<{
+        currentRound : Nat;
+        totalContributions : Nat;
+        expectedContributions : Nat;
+        roundStartDate : ContributionLogic.DateInfo;
+        daysRemaining : Int;
+    }, Text> {
+        contributionLogic.getRoundStatus(chamaId)
+    };
     system func preupgrade() {
         storage.preupgrade();
     };
