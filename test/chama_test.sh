@@ -7,7 +7,8 @@ NC='\033[0m'
 
 echo "=== Starting Chama Testing ==="
 echo "Current Date: 2025-06-12 18:48:43"
-echo "Testing as user: Kellyjunior6387"
+dfx identity use TEST
+echo "Testing as user: TEST"
 echo ""
 
 # Test 1: Create a new Chama
@@ -26,25 +27,44 @@ echo "Test 2: Getting Chama details"
 dfx canister call chama-app-backend getChama "($CHAMA_ID)"
 echo ""
 
-# Test 3: Join Chama
-echo "Test 3: Joining Chama"
+#Join chama with user NYAMS
+echo "Switching to NYAMS"
+dfx identity use NYAMS
 dfx canister call chama-app-backend joinChama "($CHAMA_ID)"
 echo ""
 
-# Test 4: Get contribution amount
-echo "Test 4: Getting contribution amount"
-dfx canister call chama-app-backend getContributionAmount
+#Join chama with user ICP
+echo "Switching to ICP"
+dfx identity use ICP
+dfx canister call chama-app-backend joinChama "($CHAMA_ID)"
 echo ""
 
-# Test 5: Make a contribution
-echo "Test 5: Making contribution"
+# Test 2: Get Chama details
+echo "Test 2: Getting Chama details"
+dfx canister call chama-app-backend getChama "($CHAMA_ID)"
+echo ""
+
+# Test 5: Make a contribution as NYAMS
+echo "Test 5: Making contribution as NYAMS"
+dfx identity use NYAMS
 dfx canister call chama-app-backend contribute "($CHAMA_ID)"
 echo ""
 
-# Test 6: Check contribution status
-echo "Test 6: Checking contribution status"
-CALLER=$(dfx identity get-principal)
-dfx canister call chama-app-backend getContributionStatus "($CHAMA_ID, principal \"$CALLER\")"
+# Test 5: Make a contribution as NYAMS
+echo "Test 5: Making contribution as ICP"
+dfx identity use ICP
+dfx canister call chama-app-backend contribute "($CHAMA_ID)"
 echo ""
+
+# Test 6: Check contribution history
+echo "Test 6: Checking Transcation history"
+dfx canister call chama-app-backend getTransactionHistory "($CHAMA_ID)"
+echo ""
+
+# Test 6: Check Formatted LLM history
+echo "Test 7: Checking LLM Transcation history"
+dfx canister call chama-app-backend getFormattedTransactionsForLLM "($CHAMA_ID)"
+echo ""
+
 
 echo "=== Testing Complete ==="
