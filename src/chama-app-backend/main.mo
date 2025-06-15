@@ -9,6 +9,8 @@ import ChamaLogic "./chama_logic";
 //import ContributionLogic "./contributions";
 import ContributionLogic "./contributions_v2";
 import Transactions "./transactions";
+import LLM "mo:llm";
+
 
 actor {
     let storage = Storage.Storage();
@@ -122,6 +124,11 @@ actor {
         };
 
         summary
+    };
+    
+    //TODO organise files, add chat with system roles, setup AI functions
+    public shared func prompt(prompt : Text) : async Text {
+        await LLM.prompt(#Llama3_1_8B, prompt);
     };
 
     system func preupgrade() {
