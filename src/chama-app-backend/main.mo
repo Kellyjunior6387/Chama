@@ -3,12 +3,11 @@ import Principal "mo:base/Principal";
 import Array "mo:base/Array";
 import Time "mo:base/Time";
 import Nat "mo:base/Nat";
-import Types "./types";
-import Storage "./storage";
-import ChamaLogic "./chama_logic";
-//import ContributionLogic "./contributions";
-import ContributionLogic "./contributions_v2";
-import Transactions "./transactions";
+import Types "./chama_logic/types";
+import Storage "./chama_logic/storage";
+import ChamaLogic "./chama_logic/chama_logic";
+import ContributionLogic "./chama_logic/contributions";
+import Transactions "./transactions_history/transactions";
 import LLM "mo:llm";
 
 
