@@ -14,5 +14,8 @@
   "type": "module",
   "workspaces": [
     "src/chama-app-frontend"
-  ]
+  ],
+  "dependencies": {
+    "@dfinity/auth-client": "^2.4.1"
+  }
 }
