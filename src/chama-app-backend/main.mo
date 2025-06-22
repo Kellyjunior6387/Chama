@@ -112,6 +112,10 @@ actor {
             contributionLogic.getMemberDetails(chamaId, memberId)
     };
 
+    public shared query({ caller }) func getAllChamas() : async [ContributionLogic.ChamaSummary] {
+            contributionLogic.getAllUserChamas(caller)
+    };
+
    //Functions to get previous transcations to be used by LLM
    public shared query func getAllTransactions() : async [Transactions.Transaction] {
         transactionLog.getAllTransactions()

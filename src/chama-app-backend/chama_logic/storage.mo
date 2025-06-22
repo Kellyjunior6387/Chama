@@ -1,6 +1,7 @@
 import HashMap "mo:base/HashMap";
 import Nat "mo:base/Nat";
 import Hash "mo:base/Hash";
+import Iter "mo:base/Iter";
 import Types "./types";
 
 module {
@@ -26,6 +27,10 @@ module {
 
         public func getChama(id : Nat) : ?Types.Chama {
             chamas.get(id)
+        };
+
+        public func getAllChamas() : Iter.Iter<(Nat, Types.Chama)> {
+            chamas.entries()
         };
 
         public func preupgrade() : () {

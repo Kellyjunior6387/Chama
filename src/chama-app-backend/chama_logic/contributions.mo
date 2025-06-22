@@ -77,6 +77,26 @@ module {
         contributed : Nat;
         receivedPayout : Bool;
     };
+    public type ChamaSummary = {
+    id : Nat;
+    name : Text;
+    owner : Principal;
+    ownerName : Text;
+    memberCount : Nat;
+    isCurrentUserOwner : Bool;
+    joinedDate : Int;  // Timestamp when the user joined
+    totalContributed : Nat;
+    currentRound : ?{
+        roundNumber : Nat;
+        receiver : Principal;
+        receiverName : Text;
+        expectedContributions : Nat;
+        currentContributions : Nat;
+        startTime : Int;
+        status : RoundStatus;
+    };
+};
+
     public class ContributionLogic(storage : Storage.Storage) {
         private let CONTRIBUTION_AMOUNT : Nat = 100_000_000; // 1 ICP = 100_000_000 e8s
         private let MIN_MEMBERS_FOR_CONTRIBUTION : Nat = 2;
@@ -565,6 +585,60 @@ module {
                     };
                 };
             };
+        };
+        public func getAllUserChamas(caller : Principal) : [ChamaSummary] {
+        var userChamas : [ChamaSummary] = [];
+        
+        // Get all Chamas from storage
+        for ((chamaId, chama) in storage.getAllChamas()) {
+            // Check if user is a member
+            switch(Array.find<Types.Member>(chama.members, func(m) = Principal.equal(m.id, caller))) {
+                case(null) { /* User is not a member of this chama */ };
+                case(?member) {
+                    // Get current round info
+                    let currentRound = switch(chamaRounds.get(chamaId)) {
+                        case(null) { null };
+                        case(?round) {
+                            // Get receiver name
+                            let receiverName = switch(Array.find<Types.Member>(
+                                chama.members,
+                                func(m) = Principal.equal(m.id, round.receiver)
+                            )) {
+                                case(null) { "Unknown" };
+                                case(?receiverMember) { receiverMember.name };
+                            };
+                            
+                            ?{
+                                roundNumber = round.roundNumber;
+                                receiver = round.receiver;
+                                receiverName = receiverName;
+                                expectedContributions = round.expectedContributions;
+                                currentContributions = round.currentContributions;
+                                startTime = round.startTime;
+                                status = round.status;
+                            };
+                        };
+                    };
+
+                    // Create summary
+                    let summary : ChamaSummary = {
+                        id = chamaId;
+                        name = chama.name;
+                        owner = chama.owner;
+                        ownerName = chama.ownerName;
+                        memberCount = Array.size(chama.members);
+                        isCurrentUserOwner = Principal.equal(caller, chama.owner);
+                        joinedDate = Time.now(); // In a production system, you'd want to store and track the actual join date
+                        totalContributed = member.contributed;
+                        currentRound = currentRound;
+                    };
+                    
+                    userChamas := Array.append(userChamas, [summary]);
+                        };
+                    };
+                };
+            
+            userChamas
         };
 
         // Debug helper function
