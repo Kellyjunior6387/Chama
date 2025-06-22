@@ -5,16 +5,18 @@ import Storage "./storage";
 
 module {
     public class ChamaLogic(storage : Storage.Storage) {
-        public func createChama(name : Text, caller : Principal) : Types.Result<Nat, Text> {
+        public func createChama(name : Text,ownerName: Text, caller : Principal) : Types.Result<Nat, Text> {
             let chamaId = storage.getChamaCounter();
 
             let newChama : Types.Chama = {
                 id = chamaId;
                 name = name;
                 owner = caller;
+                ownerName = ownerName;
                 members = [
                     {
                         id = caller;
+                        name = ownerName;
                         contributed = 0;
                         receivedPayout = false;
                     }
@@ -27,7 +29,7 @@ module {
             #ok(chamaId)
         };
 
-        public func joinChama(chamaId : Nat, caller : Principal) : Types.Result<Text, Text> {
+        public func joinChama(chamaId : Nat,memberName : Text, caller : Principal) : Types.Result<Text, Text> {
             switch (storage.getChama(chamaId)) {
                 case (null) {
                     #err("Chama not found.")
@@ -43,6 +45,7 @@ module {
                     let newMember : Types.Member = {
                         id = caller;
                         contributed = 0;
+                        name = memberName; 
                         receivedPayout = false;
                     };
 
@@ -52,6 +55,7 @@ module {
                         id = chama.id;
                         name = chama.name;
                         owner = chama.owner;
+                        ownerName = chama.ownerName;
                         members = updatedMembers;
                     };
 

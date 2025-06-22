@@ -54,6 +54,7 @@ module {
 
     public type ReceiverInfo = {
         principal : Principal;
+        name: Text;
         expectedAmount : Nat;
         dueDate : DateInfo;
         status : Text;
@@ -70,6 +71,12 @@ module {
         receiverHistory : [Principal];
     };
 
+    public type MemberDetails = {
+        id : Principal;
+        name : Text;
+        contributed : Nat;
+        receivedPayout : Bool;
+    };
     public class ContributionLogic(storage : Storage.Storage) {
         private let CONTRIBUTION_AMOUNT : Nat = 100_000_000; // 1 ICP = 100_000_000 e8s
         private let MIN_MEMBERS_FOR_CONTRIBUTION : Nat = 2;
@@ -322,12 +329,14 @@ module {
                             if (Principal.equal(member.id, contributor)) {
                                 {
                                     id = member.id;
+                                    name = member.name;
                                     contributed = member.contributed + CONTRIBUTION_AMOUNT;
                                     receivedPayout = member.receivedPayout;
                                 }
                             } else if (Principal.equal(member.id, receiver)) {
                                 {
                                     id = member.id;
+                                    name = member.name;
                                     contributed = member.contributed;
                                     receivedPayout = true;
                                 }
@@ -341,6 +350,7 @@ module {
                         id = chama.id;
                         name = chama.name;
                         owner = chama.owner;
+                        ownerName = chama.ownerName;
                         members = updatedMembers;
                     };
 
@@ -427,59 +437,92 @@ module {
                     switch(getCurrentReceiverForChama(chamaId)) {
                         case(#err(e)) { #err(e) };
                         case(#ok(receiver)) {
-                            let nextPayoutTime = switch(getNextPayoutDate(chamaId)) {
-                                case(null) { Time.now() + 2_592_000_000_000_000 }; // Default to 30 days
-                                case(?time) { time };
-                            };
-
-                            let dateInfo = timestampToDateInfo(nextPayoutTime);
-                            let expectedAmount = (Array.size(chama.members) - 1) * CONTRIBUTION_AMOUNT;
-
-                            #ok({
-                                principal = receiver;
-                                expectedAmount = expectedAmount;
-                                dueDate = dateInfo;
-                                status = switch(chamaRounds.get(chamaId)) {
-                                    case(null) { "Not Started" };
-                                    case(?round) {
-                                        if (round.currentContributions >= round.expectedContributions) {
-                                            "Complete"
-                                        } else {
-                                            "In Progress (" # 
-                                            Nat.toText(round.currentContributions) # 
-                                            "/" # 
-                                            Nat.toText(round.expectedContributions) # 
-                                            " contributions)"
-                                        };
+                            // Find receiver's name from members
+                            let receiverMember = Array.find<Types.Member>(
+                                chama.members,
+                                func(m : Types.Member) : Bool { 
+                                    Principal.equal(m.id, receiver) 
+                                }
+                            );
+                            
+                            switch(receiverMember) {
+                                case(null) { #err("Receiver not found in members") };
+                                case(?member) {
+                                    let nextPayoutTime = switch(getNextPayoutDate(chamaId)) {
+                                        case(null) { Time.now() + 2_592_000_000_000_000 }; // Default to 30 days
+                                        case(?time) { time };
                                     };
+
+                                    let dateInfo = timestampToDateInfo(nextPayoutTime);
+                                    let expectedAmount = (Array.size(chama.members) - 1) * CONTRIBUTION_AMOUNT;
+
+                                    #ok({
+                                        principal = receiver;
+                                        name = member.name;  // Include receiver's name
+                                        expectedAmount = expectedAmount;
+                                        dueDate = dateInfo;
+                                        status = switch(chamaRounds.get(chamaId)) {
+                                            case(null) { "Not Started" };
+                                            case(?round) {
+                                                if (round.currentContributions >= round.expectedContributions) {
+                                                    "Complete"
+                                                } else {
+                                                    "In Progress (" # 
+                                                    Nat.toText(round.currentContributions) # 
+                                                    "/" # 
+                                                    Nat.toText(round.expectedContributions) # 
+                                                    " contributions)"
+                                                };
+                                            };
+                                        };
+                                    })
                                 };
-                            })
+                            };
                         };
                     };
                 };
             };
         };
-
-        public func getCurrentReceiverDetails(chamaId : Nat) : Types.Result<ReceiverInfo, Text> {
-            switch(chamaRounds.get(chamaId)) {
-                case(null) { #err("No active round found") };
-                case(?round) {
-                    let dateInfo = timestampToDateInfo(round.startTime + 2_592_000_000_000_000);
-                    #ok({
-                        principal = round.receiver;
-                        expectedAmount = round.expectedContributions * CONTRIBUTION_AMOUNT;
-                        dueDate = dateInfo;
-                        status = if (round.status == #Complete) {
-                            "Complete"
-                        } else {
-                            "Awaiting " # 
-                            Nat.toText(round.expectedContributions - round.currentContributions) # 
-                            " more contributions"
+       public func getCurrentReceiverDetails(chamaId : Nat) : Types.Result<ReceiverInfo, Text> {
+                switch(chamaRounds.get(chamaId)) {
+                    case(null) { #err("No active round found") };
+                    case(?round) {
+                        switch(storage.getChama(chamaId)) {
+                            case(null) { #err("Chama not found") };
+                            case(?chama) {
+                                // Find the receiver's name from members
+                                let receiverMember = Array.find<Types.Member>(
+                                    chama.members,
+                                    func(m : Types.Member) : Bool { 
+                                        Principal.equal(m.id, round.receiver) 
+                                    }
+                                );
+                                
+                                let dateInfo = timestampToDateInfo(round.startTime + 2_592_000_000_000_000);
+                                
+                                switch(receiverMember) {
+                                    case(null) { #err("Receiver not found in members") };
+                                    case(?member) {
+                                        #ok({
+                                            principal = round.receiver;
+                                            name = member.name;  // Include receiver's name
+                                            expectedAmount = round.expectedContributions * CONTRIBUTION_AMOUNT;
+                                            dueDate = dateInfo;
+                                            status = if (round.status == #Complete) {
+                                                "Complete"
+                                            } else {
+                                                "Awaiting " # 
+                                                Nat.toText(round.expectedContributions - round.currentContributions) # 
+                                                " more contributions"
+                                            };
+                                        })
+                                    };
+                                };
+                            };
                         };
-                    })
+                    };
                 };
             };
-        };
 
         public func getRoundStatus(chamaId : Nat) : Types.Result<{
             currentRound : Nat;
@@ -529,6 +572,38 @@ module {
             switch(chamaStates.get(chamaId)) {
                 case(null) { [] };
                 case(?state) { state.receiverHistory };
+            };
+        };
+
+        // Helper function to get member name
+        public func getMemberName(chamaId : Nat, memberId : Principal) : ?Text {
+            switch(storage.getChama(chamaId)) {
+                case(null) { null };
+                case(?chama) {
+                    switch(Array.find<Types.Member>(chama.members, func(m) = Principal.equal(m.id, memberId))) {
+                        case(null) { null };
+                        case(?member) { ?member.name };
+                    };
+                };
+            };
+        };
+
+        public func getMemberDetails(chamaId : Nat, memberId : Principal) : Types.Result<MemberDetails, Text> {
+            switch(storage.getChama(chamaId)) {
+                case(null) { #err("Chama not found") };
+                case(?chama) {
+                    switch(Array.find<Types.Member>(chama.members, func(m) = Principal.equal(m.id, memberId))) {
+                        case(null) { #err("Member not found") };
+                        case(?member) {
+                            #ok({
+                                id = member.id;
+                                name = member.name;
+                                contributed = member.contributed;
+                                receivedPayout = member.receivedPayout;
+                            })
+                        };
+                    };
+                };
             };
         };
     };
