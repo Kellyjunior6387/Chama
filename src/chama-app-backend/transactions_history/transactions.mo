@@ -20,7 +20,9 @@ module {
         id : Text;
         transactionType : TransactionType;
         from : Principal;
+        fromName : Text;
         to : ?Principal;
+         toName : ?Text;
         amount : ?Nat;
         timestamp : Int;
         status : Text;
@@ -39,7 +41,9 @@ module {
         public func logTransaction(
             txType : TransactionType,
             from : Principal,
+            fromName : Text,  
             to : ?Principal,
+            toName : ?Text, 
             amount : ?Nat,
             chamaId : Nat,
             roundNumber : ?Nat,
@@ -52,7 +56,9 @@ module {
                 id = txId;
                 transactionType = txType;
                 from = from;
+                fromName = fromName;
                 to = to;
+                toName = toName;
                 amount = amount;
                 timestamp = timestamp;
                 status = "Completed";
@@ -119,17 +125,21 @@ module {
                 case(null) { "N/A" };
                 case(?amt) { Nat.toText(amt) # " e8s" };
             };
-
-            let toText = switch(tx.to) {
+             let toText = switch(tx.to) {
                 case(null) { "N/A" };
-                case(?principal) { Principal.toText(principal) };
+                case(?principal) { 
+                    switch(tx.toName) {
+                        case(null) { Principal.toText(principal) };
+                        case(?name) { name # " (" # Principal.toText(principal) # ")" };
+                    }
+                };
             };
 
             let timestamp = Int.abs(tx.timestamp / 1_000_000_000); // Convert nano to seconds
 
             return "Transaction ID: " # tx.id # "\n" #
                     "Type: " # txType # "\n" #
-                    "From: " # Principal.toText(tx.from) # "\n" #
+                    "From: " # tx.fromName # " (" # Principal.toText(tx.from) # ")\n" #
                     "To: " # toText # "\n" #
                     "Amount: " # amountText # "\n" #
                     "Timestamp: " # Int.toText(timestamp) # "\n" #

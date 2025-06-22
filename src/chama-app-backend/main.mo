@@ -17,29 +17,46 @@ actor {
     let contributionLogic = ContributionLogic.ContributionLogic(storage);
     private let transactionLog = Transactions.TransactionLog();
 
+
     //Core functions of the app
-    public shared({ caller }) func createChama(name : Text) : async Types.Result<Nat, Text> {
-        chamaLogic.createChama(name, caller)
+    public shared({ caller }) func createChama(name : Text, ownerName: Text) : async Types.Result<Nat, Text> {
+        chamaLogic.createChama(name, ownerName, caller)
     };
 
-    public shared({ caller }) func joinChama(chamaId : Nat) : async Types.Result<Text, Text> {
-        chamaLogic.joinChama(chamaId, caller)
+    public shared({ caller }) func joinChama(chamaId : Nat, memberName: Text) : async Types.Result<Text, Text> {
+        chamaLogic.joinChama(chamaId, memberName, caller)
     };
 
     public query func getChama(chamaId : Nat) : async ?Types.Chama {
         chamaLogic.getChama(chamaId)
     };
 
-    public shared({ caller }) func contribute(chamaId : Nat) : async Types.Result<ContributionLogic.ContributionResult, Text> {
+   public shared({ caller }) func contribute(chamaId : Nat) : async Types.Result<ContributionLogic.ContributionResult, Text> {
        let result = await* contributionLogic.processContribution(chamaId, caller);
         
         switch(result) {
             case(#ok(contributionResult)) {
-                // Log successful contribution
+                // Get contributor's name
+                let contributorName = switch(contributionLogic.getMemberName(chamaId, caller)) {
+                    case(null) { "Unknown Member" };
+                    case(?name) { name };
+                };
+
+                // Get receiver's name if there is a receiver
+                let receiverName = switch(contributionResult.receiver) {
+                    case(null) { null };
+                    case(?receiverPrincipal) {
+                        contributionLogic.getMemberName(chamaId, receiverPrincipal);
+                    };
+                };
+
+                // Log successful contribution with names
                 ignore transactionLog.logTransaction(
                     #Contribution,
                     caller,
+                    contributorName,  // Add contributor's name
                     contributionResult.receiver,
+                    receiverName,     // Add receiver's name
                     ?contributionResult.contributionAmount,
                     chamaId,
                     switch(contributionLogic.getCurrentRoundInfo(chamaId)) {
@@ -62,6 +79,7 @@ actor {
     public query func getContributionStatus(chamaId : Nat, memberId : Principal) : async Types.Result<ContributionLogic.ContributionStatus, Text> {
         contributionLogic.getContributionStatus(chamaId, memberId)
     };
+
 
 
     public query func getCurrentRoundInfo(chamaId : Nat) : async ?ContributionLogic.RoundInfo {
@@ -90,12 +108,16 @@ actor {
         contributionLogic.getRoundStatus(chamaId)
     };
 
+    public query func getMemberDetails(chamaId : Nat, memberId : Principal) : async Types.Result<ContributionLogic.MemberDetails, Text> {
+            contributionLogic.getMemberDetails(chamaId, memberId)
+    };
+
    //Functions to get previous transcations to be used by LLM
    public shared query func getAllTransactions() : async [Transactions.Transaction] {
         transactionLog.getAllTransactions()
     };
 
-    public shared query func getFormattedTransactionsForLLM(chamaId : Nat) : async Text {
+    public query func getFormattedTransactionsForLLM(chamaId : Nat) : async Text {
         let transactions = transactionLog.getChamaTransactions(chamaId);
         var formattedText = "Chama ID: " # Nat.toText(chamaId) # "\n\n";
         formattedText := formattedText # "Transaction History:\n\n";
@@ -107,6 +129,7 @@ actor {
         formattedText
     };
 
+    
     public shared query func getRecentActivitySummary(chamaId : Nat) : async Text {
         let transactions = transactionLog.getChamaTransactions(chamaId);
         let recentTransactions = Array.filter<Transactions.Transaction>(

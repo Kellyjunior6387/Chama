@@ -3,6 +3,7 @@ import Principal "mo:base/Principal";
 module {
     public type Member = {
         id : Principal;
+        name: Text;
         contributed : Nat;
         receivedPayout : Bool;
     };
@@ -11,6 +12,7 @@ module {
         id : Nat;
         name : Text;
         owner : Principal;
+        ownerName: Text;
         members : [Member];
     };
 
@@ -30,6 +32,7 @@ module {
     public type PayoutSchedule = {
         memberId : Principal;
         scheduledTime : Int;
+        memberName: Text;
         amount : Nat;
     };
 }
