@@ -9,7 +9,7 @@ import ChamaLogic "./chama_logic/chama_logic";
 import ContributionLogic "./chama_logic/contributions";
 import Transactions "./transactions_history/transactions";
 import LLM "mo:llm";
-
+import LLMHelper "./llm/llm";
 
 actor {
     let storage = Storage.Storage();
@@ -153,18 +153,15 @@ actor {
     };
     
     //TODO organise files, add chat with system roles, setup AI functions
-    public shared func prompt(prompt : Text) : async Text {
-        await LLM.prompt(#Llama3_1_8B, prompt);
-    };
-    
-    public func chat(messages : [LLM.ChatMessage]) : async Text {
-    let response = await LLM.chat(#Llama3_1_8B).withMessages(messages).send();
+    let llmHelper = LLMHelper.LLMHelper();
 
-    switch (response.message.content) {
-      case (?text) text;
-      case null "";
+    public shared func chatWithAI(message : Text) : async LLMHelper.AIResponse {
+        await llmHelper.chat(message)
     };
-  };
+
+    //public shared func chamaChat(message : Text, userName : Text) : async LLMHelper.AIResponse {
+        //await llmHelper.chamaSpecificChat(message, userName)
+    //};
 
 
     system func preupgrade() {
