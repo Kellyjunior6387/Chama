@@ -6,18 +6,9 @@ import { EmptyAlert } from "./notifications"
 import { AuthClient } from '@dfinity/auth-client';
 import { createActor } from '../../declarations/chama-app-backend';
 import { canisterId } from '../../declarations/chama-app-backend/index';
-import "dotenv/config"
 
 
 
-/*const network = 'local';*/
-//change this to mainnet when pushing
-/*const identityProvider =
-  network === 'ic'
-    ? 'https://identity.ic0.app' // Mainnet
-    : 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4945';*/ // Local
-
-    //update this to the mainnet when pushing
 const identityProvider = 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4945'
 
 
@@ -477,7 +468,7 @@ export function ContributionStats({contributors=fakeContributors}:{contributors 
                     let contRate = `${(Number(contributor.amount) / Number(contributor.roundIndividualContribution) * 100)}%`
                     
                     return(
-                        <div className="w-full h-8 border-b-2 border-blue-600 grid grid-cols-4 justify-center gap-4 bg-transparent">
+                        <div className="w-full h-12 border-b-2 border-blue-600 grid grid-cols-4 justify-center gap-4 bg-transparent">
                             <div>{contributor.userName}</div>
                             <div className="flex gap-2" ><span>{contributor.currency}</span><span>{contributor.amount}</span></div>
                             <div className="w-full h-full flex items-center">

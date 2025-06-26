@@ -129,6 +129,9 @@ export function Welcome({setViewState}:{setViewState:Dispatch<SetStateAction<JSX
                     <button className="w-full md:w-1/3 h-auto px-7 py-3 text-white bg-pink-600 font-bold rounded-lg mt-4 mb-4 mx-auto" onClick={createHandler} >create</button>
                 </div>
             </div>
+            <div className="w-full mt-8 h-52 md:h-screen md:mt-[-30rem] relative">
+                <img src="../public/dashboard_capture.PNG" className="w-full h-full object-cover object-center " />
+            </div>
             <div className='w-full h-auto flex flex-col items-center gap-8  my-8'>
                 <h1 className='font-bold text-xl' >What we offer ?</h1>
                 <div className='w-full h-auto flex gap-8 flex-wrap mx-auto justify-center'>

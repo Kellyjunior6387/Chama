@@ -72,8 +72,8 @@ export function ChamaChat({schat}:{schat:Dispatch<SetStateAction<JSX.Element>>})
     }
 
     return(
-        <div className="w-[96%] sm:w-[70rem] fixed right-4 top-12 md:w-[25rem] h-full py-4 md:mx-3 bg-blue-100 z-20 border-blue-600 border-2 rounded-lg select-none">
-            <div className="w-full  h-full relative overflow-hidden flex flex-col items-center select-none">
+        <div className="w-full fixed right-4 top-12 flex justify-end shadow-xl bg-transparent h-full py-4 md:mx-3 bg-blue-100 z-20 border-blue-600 border-2 rounded-lg select-none">
+            <div className="w-[96%] sm:w-[70rem] md:w-[30rem]  h-5/6 relative overflow-hidden flex flex-col items-center select-none">
                 <h1 className="font-bold text-xl px-4 py-4 w-[92%] mt-2 mx-auto bg-blue-200 rounded-lg text-center text-blue-600 flex gap-2 items-center justify-between "><span className="flex gap-2 items-center" ><FaInfoCircle  className="text-blue-600 text-xl" /> <span>assistant chat</span>  </span> <FaRegWindowClose onClick={cancelHandler} className="text-red-600 text-2xl justify-self-end" /></h1>
                 {chat}
                 <form onSubmit={submitHandler} className="w-[96%] h-12 mb-2 rounded-xl overflow-hidden bg-slate-800 flex">

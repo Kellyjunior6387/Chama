@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { chama_app_backend } from '../../declarations/chama-app-backend';
 
 function App() {
   const [greeting, setGreeting] = useState('');
