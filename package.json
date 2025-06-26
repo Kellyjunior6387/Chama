@@ -16,6 +16,22 @@
     "src/chama-app-frontend"
   ],
   "dependencies": {
-    "@dfinity/auth-client": "^2.4.1"
+    "@dfinity/auth-client": "^2.4.1",
+    "@types/react": "^18.3.7",
+    "@types/react-dom": "^18.3.0",
+    "clsx": "^2.1.1",
+    "country-code-lookup": "^0.1.3",
+    "luxon": "^3.5.0",
+    "next-themes": "^0.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.9.0",
+    "typescript": "^5.6.2"
+  },
+  "devDependencies":{
+    "@tailwindcss/typography": "^0.5.13",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3"
   }
 }
