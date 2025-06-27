@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import { chama_app_backend } from 'declarations/chama-app-backend';
 
 function App() {
   const [greeting, setGreeting] = useState('');
 
-  function handleSubmit(event) {
+  function handleSubmit(event:any) {
     event.preventDefault();
     const name = event.target.elements.name.value;
-    chama_app_backend.greet(name).then((greeting) => {
+    /*chama_app_backend.greet(name).then((greeting:string) => {
       setGreeting(greeting);
     });
-    return false;
+    return false;*/
   }
 
   return (
