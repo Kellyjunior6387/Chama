@@ -1,4 +1,5 @@
 import { clsx } from "clsx"
+import { DateTime } from "luxon"
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { FaInfoCircle, FaRegWindowClose, FaTelegramPlane } from "react-icons/fa"
 
@@ -57,23 +58,85 @@ export function ChamaChat({schat}:{schat:Dispatch<SetStateAction<JSX.Element>>})
 
     let submitHandler = function(e:any){
         e.preventDefault()
-        let text = e.target.message.value
+        let text = String(e.target.message.value)
+
+        let now = DateTime.now()
+        let year = now.year
+        let month = now.month
+        let day = now.day
+        let hour = now.hour
+        let minute = now.minute
+        let second = now.second
+        let dateCreated = `${day}/${month}/${year} ${hour}:${minute}`
 
         
 
         let newChat:Chat = {
             message:text,
             sender:false,
-            time:"22/7/25 08:35"
+            time:dateCreated
         } 
 
         setChats(prev => [...prev,newChat])
         e.target.message.value = ""
+
+        if(text.includes("hello")){
+
+            let now = DateTime.now()
+            let year = now.year
+            let month = now.month
+            let day = now.day
+            let hour = now.hour
+            let minute = now.minute
+            let second = now.second
+            let dateCreated = `${day}/${month}/${year} ${hour}:${minute}`
+            
+
+            let AiMockChat:Chat = {
+                message:"Hello and welcome to round chain assistant, how may hi help you today",
+                sender:true,
+                time:dateCreated
+            }
+            
+            if(window){
+                window.setTimeout(function(){
+                    setChats(prev => [...prev,AiMockChat])
+
+                },2000)
+            }
+
+        }
+        else{
+
+            let now = DateTime.now()
+            let year = now.year
+            let month = now.month
+            let day = now.day
+            let hour = now.hour
+            let minute = now.minute
+            let second = now.second
+            let dateCreated = `${day}/${month}/${year} ${hour}:${minute}`
+
+
+            let AiMockChat:Chat = {
+                message:"Hello there we're currently working on that, grap a cofee at the moment ",
+                sender:true,
+                time:dateCreated
+            }
+
+            window.setTimeout(function(){
+                    setChats(prev => [...prev,AiMockChat])
+
+            },2000)
+
+        }
+
+
     }
 
     return(
-        <div className="w-full fixed right-4 top-12 flex justify-end shadow-xl bg-transparent h-full py-4 md:mx-3 bg-blue-100 z-20 border-blue-600 border-2 rounded-lg select-none">
-            <div className="w-[96%] sm:w-[70rem] md:w-[30rem]  h-5/6 relative overflow-hidden flex flex-col items-center select-none">
+        <div className="w-full fixed right-4 top-12 flex justify-end backdrop-blur-xl bg-transparent h-full py-4 md:mx-3 bg-blue-100 z-20 border-blue-600 rounded-lg select-none">
+            <div className="w-[96%] sm:w-[70rem] md:w-[30rem]  h-5/6 bg-white relative rounded-lg overflow-hidden flex flex-col items-center select-none">
                 <h1 className="font-bold text-xl px-4 py-4 w-[92%] mt-2 mx-auto bg-blue-200 rounded-lg text-center text-blue-600 flex gap-2 items-center justify-between "><span className="flex gap-2 items-center" ><FaInfoCircle  className="text-blue-600 text-xl" /> <span>assistant chat</span>  </span> <FaRegWindowClose onClick={cancelHandler} className="text-red-600 text-2xl justify-self-end" /></h1>
                 {chat}
                 <form onSubmit={submitHandler} className="w-[96%] h-12 mb-2 rounded-xl overflow-hidden bg-slate-800 flex">
